@@ -1,4 +1,6 @@
 tmp/
 .bashrc
 *.log
-
+.env
+vendor
+composer.lock

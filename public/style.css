@@ -1,0 +1,21 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #0f0f12; color: #e4e6eb; padding: 15px; display: flex; flex-direction: column; height: 100vh; }
+h2 { font-size: 1.2rem; text-align: center; padding: 10px 0; color: #0084ff; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+#logoutBtn { font-size: 0.8rem; background: #3a3b3c; border-radius: 12px; padding: 4px 10px; }
+#chatbox { flex: 1; overflow-y: auto; padding: 15px; background: #16161a; border-radius: 8px; margin: 15px 0; display: flex; flex-direction: column; gap: 12px; }
+.bubble { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+.bubble.me { background: #0084ff; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.bubble.them { background: #3a3b3c; color: #e4e6eb; align-self: flex-start; border-bottom-left-radius: 4px; }
+.meta { font-size: 0.7rem; opacity: 0.6; margin-top: 4px; display: block; }
+.me .meta { text-align: right; color: #d0e7ff; }
+.them .meta { text-align: left; color: #b0b3b8; }
+.input-area { display: flex; gap: 8px; padding-bottom: 10px; }
+input { flex: 1; padding: 12px; background: #242526; color: #fff; border: 1px solid #3a3b3c; border-radius: 20px; font-size: 1rem; outline: none; }
+button { background: #0084ff; color: white; border: none; border-radius: 20px; padding: 0 20px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+
+#authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f12; display: flex; flex-direction: column; justify-content: center; padding: 30px; z-index: 100; }
+.auth-box { background: #16161a; padding: 20px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 15px; }
+.auth-box h3 { text-align: center; color: #0084ff; }
+.auth-box input { border-radius: 8px; }
+.auth-box button { padding: 12px; border-radius: 8px; }
+.toggle-text { text-align: center; font-size: 0.9rem; color: #aaa; cursor: pointer; text-decoration: underline; }
