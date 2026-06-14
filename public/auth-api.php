@@ -1,5 +1,5 @@
 <?php
-// public/auth-api.php
+/*// public/auth-api.php
 header("Content-Type: application/json");
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -57,3 +57,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 echo json_encode($response);
 exit;
+
+*/
+//cat >> ~/social-app/public/auth-api.php << 'EOF'
+
+if ($action === 'debug_env') {
+    echo json_encode([
+        'DB_HOST' => getenv('DB_HOST'),
+        'DB_NAME' => getenv('DB_NAME'),
+        'DB_USER' => getenv('DB_USER'),
+        'DB_PORT' => getenv('DB_PORT'),
+        'db_host_env' => $_ENV['DB_HOST'] ?? 'not in _ENV',
+    ]);
+    exit;
+}
+
