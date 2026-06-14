@@ -1,6 +1,46 @@
 let currentUser = null;
 let authMode = 'login';
 
+function setLoading(state) {
+    const btn = document.getElementById('authBtn');
+    if (state) {
+        btn.disabled = true;
+        btn.dataset.label = btn.innerText;
+        btn.innerHTML = '<span class="btn-spinner"></span>' + btn.dataset.label;
+    } else {
+        btn.disabled = false;
+        btn.innerText = btn.dataset.label;
+    }
+}
+
+function getOtpValue() {
+    return Array.from(document.querySelectorAll('.otp-digit')).map(i => i.value).join('');
+}
+
+function clearOtp() {
+    document.querySelectorAll('.otp-digit').forEach(i => i.value = '');
+}
+
+function initOtpInputs() {
+    const digits = document.querySelectorAll('.otp-digit');
+    digits.forEach((input, idx) => {
+        input.addEventListener('input', () => {
+            input.value = input.value.replace(/\D/g, '').slice(-1);
+            if (input.value && idx < digits.length - 1) digits[idx + 1].focus();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !input.value && idx > 0) digits[idx - 1].focus();
+        });
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+            digits.forEach((d, i) => d.value = text[i] || '');
+            const next = Math.min(text.length, digits.length - 1);
+            digits[next].focus();
+        });
+    });
+}
+
 function toggleAuthMode() {
     const title = document.getElementById('authTitle');
     const btn = document.getElementById('authBtn');
@@ -34,7 +74,7 @@ function switchToForgotMode() {
     document.getElementById('authEmail').placeholder = 'Enter Account Email';
     document.getElementById('authUsername').style.display = 'none';
     document.getElementById('authPassword').style.display = 'none';
-    document.getElementById('authCode').style.display = 'none';
+    document.getElementById('otpWrapper').style.display = 'none';
     document.getElementById('authBtn').innerText = 'Send Reset Code';
     document.getElementById('authToggle').innerText = 'Back to Login';
     document.getElementById('authToggle').setAttribute('onclick', 'resetToLoginMode()');
@@ -43,14 +83,17 @@ function switchToForgotMode() {
 
 function resetToLoginMode() {
     authMode = 'login';
+    window._resetEmail = null;
     document.getElementById('authTitle').innerText = 'Login to Chat';
+    document.getElementById('authEmail').style.display = 'block';
     document.getElementById('authEmail').placeholder = 'Email Address';
+    document.getElementById('authEmail').value = '';
     document.getElementById('authUsername').style.display = 'none';
     document.getElementById('authPassword').style.display = 'block';
     document.getElementById('authPassword').value = '';
     document.getElementById('authPassword').placeholder = 'Password';
-    document.getElementById('authCode').style.display = 'none';
-    document.getElementById('authCode').value = '';
+    document.getElementById('otpWrapper').style.display = 'none';
+    clearOtp();
     document.getElementById('authBtn').innerText = 'Login';
     document.getElementById('authToggle').innerText = "Don't have an account? Register";
     document.getElementById('authToggle').setAttribute('onclick', 'toggleAuthMode()');
@@ -76,16 +119,17 @@ async function handleAuth() {
     const emailIn = document.getElementById('authEmail').value.trim();
     const userIn = document.getElementById('authUsername').value.trim();
     const passIn = document.getElementById('authPassword').value.trim();
-    const codeIn = document.getElementById('authCode').value.trim();
+    const codeIn = getOtpValue();
 
-    if (!emailIn) return alert('Email address is required.');
+    if (authMode !== 'forgot_verify' && authMode !== 'forgot_new_password' && !emailIn) return alert('Email address is required.');
     if (authMode === 'register' && !userIn) return alert('Username is required.');
     if ((authMode === 'login' || authMode === 'register' || authMode === 'forgot_new_password') && !passIn) {
         return alert('Password is required.');
     }
 
     try {
-        // Phase 1: Request Code
+        setLoading(true);
+
         if (authMode === 'forgot_request') {
             const res = await fetch('auth-api.php?action=forgot_password', {
                 method: 'POST',
@@ -96,55 +140,55 @@ async function handleAuth() {
             alert(data.message);
 
             if (res.ok) {
+                window._resetEmail = emailIn;
                 authMode = 'forgot_verify';
-                document.getElementById('authCode').style.display = 'block';
+                document.getElementById('authEmail').style.display = 'none';
+                document.getElementById('otpWrapper').style.display = 'block';
                 document.getElementById('authBtn').innerText = 'Verify Reset Code';
+                document.querySelectorAll('.otp-digit')[0].focus();
             }
+            setLoading(false);
             return;
         }
 
-        // Phase 2: Verify OTP Code
         if (authMode === 'forgot_verify') {
-            if (!codeIn) return alert('Please enter your reset code.');
+            if (codeIn.length < 6) { setLoading(false); return alert('Enter all 6 digits.'); }
             const res = await fetch('auth-api.php?action=verify_code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailIn, token: codeIn })
+                body: JSON.stringify({ email: window._resetEmail, token: codeIn })
             });
             const data = await res.json();
             alert(data.message);
 
             if (res.ok) {
                 authMode = 'forgot_new_password';
-                document.getElementById('authCode').style.display = 'none';
+                document.getElementById('otpWrapper').style.display = 'none';
+                clearOtp();
                 document.getElementById('authPassword').style.display = 'block';
                 document.getElementById('authPassword').placeholder = 'Enter New Password';
                 document.getElementById('authBtn').innerText = 'Save Password';
             }
+            setLoading(false);
             return;
         }
 
-        // Phase 3: Submit New Password
         if (authMode === 'forgot_new_password') {
             const res = await fetch('auth-api.php?action=reset_password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailIn, password: passIn })
+                body: JSON.stringify({ email: window._resetEmail, password: passIn })
             });
             const data = await res.json();
             alert(data.message);
 
-            if (res.ok) {
-                resetToLoginMode();
-            }
+            if (res.ok) resetToLoginMode();
+            setLoading(false);
             return;
         }
 
-        // Clean, uniform mapping payloads for login and registration
         const payload = { email: emailIn, password: passIn };
-        if (authMode === 'register') {
-            payload.username = userIn;
-        }
+        if (authMode === 'register') payload.username = userIn;
 
         const res = await fetch(`auth-api.php?action=${authMode}`, {
             method: 'POST',
@@ -152,6 +196,7 @@ async function handleAuth() {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
+        setLoading(false);
 
         if (!res.ok) return alert(data.message);
 
@@ -162,7 +207,10 @@ async function handleAuth() {
         }
 
         checkSession();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        setLoading(false);
+        console.error(err);
+    }
 }
 
 async function logout() {
@@ -198,7 +246,7 @@ async function fetchMessages() {
 async function sendMessage() {
     const input = document.getElementById('msgInput');
     const text = input.value.trim();
-    if(!text) return;
+    if (!text) return;
     input.value = '';
 
     try {
@@ -211,5 +259,6 @@ async function sendMessage() {
     } catch (err) { console.error(err); }
 }
 
+initOtpInputs();
 checkSession();
 setInterval(fetchMessages, 2000);

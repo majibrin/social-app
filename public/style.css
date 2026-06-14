@@ -19,3 +19,11 @@ button { background: #0084ff; color: white; border: none; border-radius: 20px; p
 .auth-box input { border-radius: 8px; }
 .auth-box button { padding: 12px; border-radius: 8px; }
 .toggle-text { text-align: center; font-size: 0.9rem; color: #aaa; cursor: pointer; text-decoration: underline; }
+
+.otp-boxes { display: flex; gap: 10px; justify-content: center; }
+.otp-digit { flex: none; width: 42px; height: 52px; text-align: center; font-size: 1.4rem; font-weight: bold; background: #242526; color: #fff; border: 2px solid #3a3b3c; border-radius: 8px; padding: 0; outline: none; transition: border-color 0.2s; }
+.otp-digit:focus { border-color: #0084ff; }
+
+#authBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
