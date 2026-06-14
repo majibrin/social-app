@@ -10,11 +10,11 @@ class Database {
     public $conn;
 
     public function __construct() {
-        $this->host     = $_ENV['DB_HOST']     ?? '127.0.0.1';
-        $this->db_name  = $_ENV['DB_NAME']     ?? 'social_app';
-        $this->username = $_ENV['DB_USER']     ?? 'root';
-        $this->password = $_ENV['DB_PASS']     ?? '';
-        $this->port     = $_ENV['DB_PORT']     ?? '3306';
+        $this->host     = $_ENV['DB_HOST']     ?? getenv('DB_HOST')     ?: '127.0.0.1';
+        $this->db_name  = $_ENV['DB_NAME']     ?? getenv('DB_NAME')     ?: 'social_app';
+        $this->username = $_ENV['DB_USER']     ?? getenv('DB_USER')     ?: 'root';
+        $this->password = $_ENV['DB_PASS']     ?? getenv('DB_PASS')     ?: '';
+        $this->port     = $_ENV['DB_PORT']     ?? getenv('DB_PORT')     ?: '3306';
     }
 
     public function getConnection() {
