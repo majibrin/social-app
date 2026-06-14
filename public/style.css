@@ -13,7 +13,7 @@ h2 { font-size: 1.2rem; text-align: center; padding: 10px 0; color: #0084ff; bor
 input { flex: 1; padding: 12px; background: #242526; color: #fff; border: 1px solid #3a3b3c; border-radius: 20px; font-size: 1rem; outline: none; }
 button { background: #0084ff; color: white; border: none; border-radius: 20px; padding: 0 20px; font-size: 1rem; font-weight: bold; cursor: pointer; }
 
-#authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f12; display: flex; flex-direction: column; justify-content: center; padding: 30px; z-index: 100; }
+#authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f12; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; z-index: 100; }
 .auth-box { background: #16161a; padding: 20px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 15px; }
 .auth-box h3 { text-align: center; color: #0084ff; }
 .auth-box input { border-radius: 8px; }
