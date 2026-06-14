@@ -1,0 +1,6 @@
+.env
+.git
+vendor
+reset_codes.log
+smtp_debug.log
+ENV.txt
